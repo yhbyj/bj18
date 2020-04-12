@@ -1,8 +1,20 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader, RequestContext
 from booktest.models import  BookInfo, HeroInfo
 from datetime import date
+
+def login_required(view_func):
+    '''登录判断装饰器'''
+    def wrapper(request, *view_args, **view_kwargs):
+        # 判断用户是否登录
+        if request.session.has_key('isLogin'):
+            # 用户已登录，调用对应的视图
+            return view_func(request, *view_args, **view_kwargs)
+        else:
+            # 用户未登录，跳转到登录页面
+            return redirect('/login')
+    return wrapper
 
 def my_render(request, template_path, context_dict={}):
     '''使用模板文件'''
@@ -83,3 +95,200 @@ def BookDetails(request, book_id):
     context = {'book':book, 'heroes': heroes}
     return render(request, 'booktest/book_details.html', context)
 
+# /login
+def login(request):
+    '''显示登录页面'''
+    # 判断用户是否已登录
+    if request.session.has_key('isLogin'):
+        # 用户已登录，跳转到首页
+        # return redirect('/index')
+        # 用户已登录，跳转到密码修改页面
+        return redirect('/change_pwd')
+    else:
+        # 获取cookie username
+        if 'username' in request.COOKIES:
+            # 获取记住的用户名
+            username = request.COOKIES['username']
+        else:
+            username = ''
+        return render(request, 'booktest/login.html', {'username':username})
+
+# /login_check
+def login_check(request):
+    '''登录校验视图'''
+    # request.POST 保存的是post方式提交的参数 QueryDict
+    # request.GET 保存的是get方式提交的参数
+    # print(request.method)
+    # 1.获取用户名和密码
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    remember = request.POST.get('remember')
+    # print(remember)
+    # 获取用户输入的验证码
+    vcode = request.POST.get('vcode')
+    # 获取session中保存的验证码
+    verifycode = request.session.get('verifycode')
+    # 进行验证码校验
+    if vcode != verifycode:
+        # 验证码错误
+        return redirect('/login')
+    # 2.进行登录的校验
+    # 实际开发：根据用户名和密码查找数据库
+    # 模拟：smart  123
+    if username == 'smart' and password == '123' :
+        # 用户名和密码正确，跳转到首页
+        # response = redirect('/index')
+        # 用户名和密码正确，跳转到密码修改页面
+        response = redirect('/change_pwd')
+        # 判断是否需要记住用户名
+        if remember == 'on':
+            # 设置Cookie username，过期时间1周
+            response.set_cookie('username', username, max_age=7*24*3600)
+        # 记住用户的登录状态
+        # 只要session中有isLogin，就认为用户已经登录，不管它是什么值。
+        request.session['isLogin'] = True
+        # 记住登录的用户名
+        request.session['username'] = username
+        return  response
+    else:
+        # 用户名或密码错误，跳转到登录页面
+        return redirect('/login')
+
+# /login_ajax
+def login_ajax(request):
+    '''显示Ajax登录页面'''
+    return render(request, 'booktest/login_ajax.html')
+
+# /login_ajax_check
+def login_ajax_check(request):
+    '''Ajax登录校验'''
+    # 1.获取用户名和密码
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    # 2.进行校验，放回json数据
+    if username == 'smart' and password == '123' :
+        # 用户名和密码正确
+        return JsonResponse({'res':1})
+    else:
+        # 用户名或密码错误
+        return JsonResponse({'res': 0})
+
+# /set_session
+def set_session(request):
+    '''设置session信息'''
+    request.session['username'] = 'smart'
+    request.session['age'] = 18
+    return HttpResponse('设置session')
+
+# /get_session
+def get_session(request):
+    '''获取session的信息'''
+    username = request.session['username']
+    age = request.session['age']
+    return HttpResponse(username + ':' + age)
+
+# /set_cookie
+def set_cookie(request):
+    '''设置Cookie信息'''
+    response = HttpResponse('设置cookie')
+    # 设置一个Cookie信息
+    response.set_cookie('num', 1)
+    # 返回 response
+    return response
+
+# /get_cookie
+def get_cookie(request):
+    '''获取Cookie的信息'''
+    # 取出Cookie num 的值
+    num = request.COOKIES['num']
+    return  HttpResponse(num)
+
+# /change_pwd
+@login_required
+# login_required(change_pwd)(request, *view_args, *view_kwargs)
+def change_pwd(request):
+    '''修改密码页面'''
+    return render(request, 'booktest/change_pwd.html')
+
+# /change_pwd_action
+@login_required
+def change_pwd_action(request):
+    '''模拟修改密码处理'''
+    # 1.获取新密码
+    pwd = request.POST.get('pwd')
+    # 获取用户名
+    username = request.session.get('username')
+    # 2.实际开发的时候：修改对应数据库中的内容……
+    # 3. 返回一个应答
+    return HttpResponse('%s修改的密码为：%s'%(username,pwd))
+
+from PIL import Image, ImageDraw, ImageFont
+from django.utils.six import BytesIO
+
+# /verify_code
+def verify_code(request):
+    # 引入随机函数模块
+    import  random
+    # 定义变量，用于函数的背景色、宽、高
+    bgcolor = (random.randrange(20, 100), random.randrange(20, 100), 255)
+    width = 100
+    height = 25
+    # 创建画面对象
+    im = Image.new('RGB', (width, height), bgcolor)
+    # 创建画笔对象
+    draw = ImageDraw.Draw(im)
+    # 调用画笔的point()函数绘制噪点
+    for i in range(0, 100):
+        xy = (random.randrange(0, width), random.randrange(0, height))
+        fill = (random.randrange(0, 255), 255, random.randrange(0, 255))
+        draw.point(xy, fill=fill)
+    # 定义验证码的备选值
+    str1 = 'ABCD123EFGHIJK456LMNOPQRS789TUVWZYZ0'
+    # 随机选取4个值作为验证码
+    rand_str = ''
+    for i in range(0,4):
+        rand_str += str1[random.randrange(0, len(str1))]
+    # 构造字体对象，ubuntu的字体路径为'/usr/share/fonts/truetype/freefont'
+    # font = ImageFont.truetype('FreeMono.ttf', 23)
+    font = ImageFont.truetype('C:\Windows\Fonts\simsunb.ttf', 23)
+    # 构造字体颜色
+    fontcolor = (255, random.randrange(0, 255), random.randrange(0, 255))
+    # 绘制四个字
+    draw.text((5, 2), rand_str[0], font=font, fill=fontcolor)
+    draw.text((25, 2), rand_str[1], font=font, fill=fontcolor)
+    draw.text((50, 2), rand_str[2], font=font, fill=fontcolor)
+    draw.text((75, 2), rand_str[3], font=font, fill=fontcolor)
+    # 释放画笔
+    del draw
+    # 存入session，用于做进一步的验证
+    request.session['verifycode'] = rand_str
+    # 内存文件操作
+    buf = BytesIO()
+    # 将图片保存在内存，文件类型为png
+    im.save(buf, 'png')
+    return  HttpResponse(buf.getvalue(), 'image/png')
+
+# /url_reverse
+def url_reverse(request):
+    '''url反向解析页面'''
+    return render(request, 'booktest/url_reverse.html')
+
+# /show_args/(\d+)/(\d+)
+def show_args(request, a, b):
+    return  HttpResponse(a + ':' + b)
+
+# /show_kwargs/(?P<c>\d+)/(?P<d>\d+)
+def show_kwargs(request, c, d):
+    return  HttpResponse(c + ':' + d)
+
+from django.core.urlresolvers import reverse
+# /test_redirect
+def test_redirect(request):
+    # return redirect('/index')
+    # 重定向到/index
+    # url = reverse('booktest:index')
+    # 重定向到/show_args/1/2
+    # url = reverse('booktest:show_args', args=(1,2))
+    # 重定向到/show_kwargs/3/4
+    url = reverse('booktest:show_kwargs', kwargs={'c':3, 'd':4})
+    return redirect(url)

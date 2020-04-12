@@ -32,5 +32,31 @@ BookInfo.objects.filter(bpub_date__year=1980)
 $ vi my.conf  
 generate_log_file  = /var/log/mysql/mysql.log   
 log_error =  /var/log/mysql/error.log       
-$ tail -f /var/log/mysql/mysql.log 
+$ tail -f /var/log/mysql/mysql.log   
+## 第二天  
+### ajax 登录案例  
+jquery-1.12.4.min.js  
+### cookie
+由服务器产生，保存在客户端（如浏览器）！  
+response = HttpResponse('设置cookie')   
+response.set_cookie('num', 1)   
 
+request.COOKIES['num']  
+### session
+由服务器产生，保存在服务器端！  
+你去办健身卡，你的信息都保存在电脑中，给你卡号（cookie seesionid）  
+request.session['username'] = 'smart'  
+request.session['age'] = 18   
+表 django_session 中以 base64编码格式保存   
+### 登录装饰器
+@login_required  
+### csrf
+中间件：'django.middleware.csrf.CsrfViewMiddleware'  
+### 验证码
+pip install Pillow -i https://mirrors.aliyun.com/pypi/simple   
+from PIL import Image, ImageDraw, ImageFont   
+### 反向解析
+from django.core.urlresolvers import reverse  
+### 静态文件
+STATIC_URL = '/static/'   #设置访问静态文件对应的url  
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]   #设置静态文件所在的物理目录  

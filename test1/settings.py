@@ -26,7 +26,7 @@ SECRET_KEY = '+xeec+xaa443j9@e9v+%3b&h2va7ag(5z(5#_wtz#-58ora(x('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -107,4 +107,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+# 设置访问静态文件对应的url
 STATIC_URL = '/static/'
+# 设置静态文件所在的物理目录
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]

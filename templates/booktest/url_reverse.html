@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+静态链接：<br>
+<a href="/index">首页</a><br>
+动态生成的链接：<br>
+<a href="{% url 'booktest:index' %}">首页</a><br>
+静态（位置参数） /show_args/1/2：<br>
+<a href="/show_args/1/2">/show_args/1/2</a><br>
+动态产生（位置参数） /show_args/1/2：<br>
+<a href="{% url 'booktest:show_args' 1 2 %}">/show_args/1/2</a><br>
+静态(关键字参数) /show_kwargs/3/4：<br>
+<a href="/show_kwargs/3/4">/show_kwargs/3/4</a><br>
+动态产生(关键字参数) /show_kwargs/3/4：<br>
+<a href="{% url 'booktest:show_kwargs' c=3 d=4 %}">/show_kwargs/3/4</a><br>
+</body>
+</html>

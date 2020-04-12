@@ -18,5 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include('booktest.urls')),   # 包含BOOKTEST应用的URLS文件
+    url(r'^', include('booktest.urls', namespace='booktest')),   # 包含BOOKTEST应用的URLS文件
 ]
