@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^url_reverse$', views.url_reverse),   # url反向解析页面
     url(r'^show_args/(\d+)/(\d+)$', views.show_args, name='show_args'),   # 捕获位置参数
     url(r'^show_kwargs/(?P<c>\d+)/(?P<d>\d+)$', views.show_kwargs, name='show_kwargs'),   # 捕获参关键字数
-    url(r'^test_redirect$', views.test_redirect),   #
+    url(r'^test_redirect$', views.test_redirect),   # url反向解析与重定向
+    url(r'^test_static$', views.test_static),   # 静态文件测试页面
 ]

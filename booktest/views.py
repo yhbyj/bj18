@@ -292,3 +292,7 @@ def test_redirect(request):
     # 重定向到/show_kwargs/3/4
     url = reverse('booktest:show_kwargs', kwargs={'c':3, 'd':4})
     return redirect(url)
+
+# /test_static
+def test_static(request):
+    return render(request, 'booktest/test_static.html')
