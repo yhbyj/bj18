@@ -60,3 +60,24 @@ from django.core.urlresolvers import reverse
 ### 静态文件
 STATIC_URL = '/static/'   #设置访问静态文件对应的url  
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]   #设置静态文件所在的物理目录  
+## 第三天
+### 中间件
+预留函数  
+----init----  
+----process_request----  
+----process_view----   
+----process_response----   
+### 后台管理
+模型管理类、列表页、编辑页  
+重写模板： Lib\site-packages\django\contrib\admin\templates\admin\base_site.html   
+上传图片： MEDIA_ROOT  
+### 省市县案例
+ajax 
+
+  
+
+
+
+
+
+       

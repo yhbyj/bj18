@@ -27,4 +27,9 @@ urlpatterns = [
     url(r'^show_kwargs/(?P<c>\d+)/(?P<d>\d+)$', views.show_kwargs, name='show_kwargs'),   # 捕获参关键字数
     url(r'^test_redirect$', views.test_redirect),   # url反向解析与重定向
     url(r'^test_static$', views.test_static),   # 静态文件测试页面
+    url(r'^show_upload$', views.show_upload),   # 显示上传图片页面
+    url(r'^upload_handle$', views.upload_handle),   # 上传图片处理show_upload
+    url(r'^show_area(?P<pindex>\d*)$', views.show_area),   # 分页
+    url(r'^areas$', views.areas),   # 省市县选择案例
+    url(r'^prov$', views.prov),   # 获取所有省级地区的信息
 ]

@@ -1,8 +1,21 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader, RequestContext
-from booktest.models import  BookInfo, HeroInfo
+from booktest.models import  BookInfo, HeroInfo, PicTest, AreaInfo
 from datetime import date
+from django.conf import settings
+
+EXCLUDE_IPS = ['192.168.31.141']
+def blocked_ips(view_func):
+    '''阻止某些IP地址访问的装饰器'''
+    def wrapper(request, *view_args, **view_kwargs):
+        # 获取浏览器的IP地址
+        user_ip = request.META['REMOTE_ADDR']
+        if user_ip in EXCLUDE_IPS:
+            return HttpResponse('<h1>Forbidden</h1>')
+        else:
+            return view_func(request, *view_args, **view_kwargs)
+    return wrapper
 
 def login_required(view_func):
     '''登录判断装饰器'''
@@ -33,6 +46,9 @@ def my_render(request, template_path, context_dict={}):
 # 2. 进行url配置处理，建立url地址和视图的对应关系
 # http://127.0.0.1:8000/index
 def index(request):
+    '''首页'''
+    # print('----index----')
+    # print(settings.FILE_UPLOAD_HANDLERS)
     '''显示图书信息'''
     # 1. 查询出所有图书的信息
     books = BookInfo.objects.all()
@@ -295,4 +311,69 @@ def test_redirect(request):
 
 # /test_static
 def test_static(request):
+    '''静态文件测试页码'''
     return render(request, 'booktest/test_static.html')
+
+# /show_upload
+def show_upload(request):
+    '''显示上传图片页面'''
+    return render(request, 'booktest/upload_pic.html')
+
+def upload_handle(request):
+    '''上传图片处理'''
+    # 1.获取上传的图片
+    # 上传文件不大于2.5M时， 文件放在内存中
+    pic = request.FILES['pic']
+    # print(type(pic))
+    # print(pic.name)
+    # pic.chunks()
+    # 2.创建一个文件
+    save_path = '%s/booktest/%s'%(settings.MEDIA_ROOT, pic.name)
+    with open(save_path, 'wb') as f:
+        # 3.获取上传文件的内容，并写入创建的文件中
+        for content in pic.chunks():
+            f.write(content)
+    # 4.在数据库中保存上传记录
+    PicTest.objects.create(goods_pic='booktest/%s'%pic.name)
+    # 5.返回
+    return HttpResponse('ok')
+
+# /show_area页码
+# 前端访问时，需要传递页码
+from django.core.paginator import Paginator
+def show_area(request, pindex):
+    '''分页'''
+    # 1.查询出所有省级地区的信息
+    areas = AreaInfo.objects.filter(aparent__isnull=True)
+    # 2.分页，每页显示10条
+    pageinator = Paginator(areas, 10)
+    # print(pageinator.num_pages)
+    # print(pageinator.page_range)
+    # 3.获取pindex的内容
+    if pindex == '':
+        # 默认取第一页的内容
+        pindex = 1
+    else:
+        pindex = int(pindex)
+    # page 是的Page类的实例对象
+    page = pageinator.page(pindex)
+    # print(page.number)
+    # 4. 使用数模板
+    return render(request, 'booktest/show_area.html', {'page':page})
+
+# /areas
+def areas(request):
+    '''显示省市县信息'''
+    return render(request, 'booktest/areas.html')
+
+# /prov
+def prov(request):
+    '''获取所有省级地区的信息'''
+    # 1.查询出所有省级地区的信息
+    areas = AreaInfo.objects.filter(aparent__isnull=True)
+    # 2.变量areas拼接出json数据：atitle id
+    areas_list = []
+    for area in areas:
+        areas_list.append((area.id, area.atitle))
+    # 3.返回数据
+    return JsonResponse({'data':areas_list})

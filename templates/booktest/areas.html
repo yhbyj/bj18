@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>省市县选择案例</title>
+    <script src="/static/js/jquery-1.12.4.min.js"></script>
+    <script>
+        $(function () {
+            // 发起一个ajax请求，/prov，获取所有省级地区信息
+            // 获取信息，使用get
+            // 涉及到信息修改，使用post
+            $.get('/prov', function (data) {
+                //回调函数
+                //获取返回的json数据
+                res = data.data
+                //获取prov下拉列表框
+                prov = $('#prov')
+                // 遍历res数组，获取每一个元素：[地区id, 地区标题]
+                /*
+                for(i=0; i<res.length; i++){
+                    id = res[i][0]
+                    atitle = res[i][1]
+                    option_str = '<option value="' + id + '">' + atitle + '</option>'
+                    // 向prov下拉列表中追加元素
+                    prov.append(option_str)
+                }
+                */
+                $.each(res, function(index, item) {
+                    // console.log(index)
+                    // console.log(item)
+                    id = item[0]
+                    atitle = item[1]
+                    option_str = '<option value="' + id + '">' + atitle + '</option>'
+                    // 向prov下拉列表中追加元素
+                    prov.append(option_str)
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+<select id="prov">
+    <option>---请选择省---</option>
+</select>
+<select>
+    <option>---请选择市---</option>
+</select>
+<select>
+    <option>---请选择显---</option>
+</select>
+</body>
+</html>

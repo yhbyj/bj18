@@ -50,6 +50,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # 'booktest.middleware.BlockedIPSMiddleware'
+    # 'booktest.middleware.TestMiddleware'
+
 )
 
 ROOT_URLCONF = 'test1.urls'
@@ -111,3 +114,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # 设置静态文件所在的物理目录
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# 设置上传文件的目录
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
