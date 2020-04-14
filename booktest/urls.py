@@ -32,4 +32,6 @@ urlpatterns = [
     url(r'^show_area(?P<pindex>\d*)$', views.show_area),   # 分页
     url(r'^areas$', views.areas),   # 省市县选择案例
     url(r'^prov$', views.prov),   # 获取所有省级地区的信息
+    url(r'^city(?P<pid>\d*)$', views.city),   # 获取省下面的市的信息
+    url(r'^dis(?P<pid>\d*)$', views.city),   # 获取市下面的县的信息
 ]
